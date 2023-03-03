@@ -81,7 +81,6 @@ public class Cube {
      *      (left, l) GREEN - 3
      *      (bottom, bo) YELLOW - 4
      *      (top, t) WHITE  - 5
-     * 
      */
 
 
@@ -97,8 +96,6 @@ public class Cube {
      *      L/L' -> Orange (2)
      *      F/F' -> Blue (1)
      *      B/B' -> Green (3)
-     * 
-     * 
      */
     
 
@@ -124,33 +121,29 @@ public class Cube {
             argsCheck = true;
         }
 
-        // game loop
+        // 'game' loop
         do {
             if (!argsCheck) {
                 userInput = reader.readLine();
-                System.out.println("\n"); // adds extra lines, looks nice..
+                System.out.println(); // adds extra lines, looks nice..
 
                 moveCubeFace(cube, userInput);
+                showCubeAll(cube);
 
             } else {
                 // in case there's args
                 for (int index = 0; index < args.length; index++){
                     moveCubeFace(cube, args[index]);
-                    System.out.println("---------------------------------\n");
+                    showCubeAll(cube);
+                    //System.out.println("---------------------------------\n");
                 }
 
                 moveCubeFace(cube, "quit");
-
             }
 
         } while (proceedLoop);
 
         reader.close();
-
-
-        // scramble
-        //System.out.println(scrambleCube(cube, 3));
-
     }
 
 
@@ -229,7 +222,7 @@ public class Cube {
 
 
     /**
-     * Used to determine moves.
+     * Used to determine moves and other actions, such as "quit" or "scramble"
      * @param userCube is the Rubik's Cube user wishes to change.
      * @param moveInput is what move the user wishes the Rubik's Cube to do
      */
@@ -315,9 +308,13 @@ public class Cube {
             case "quit": // For when game quit
                 proceedLoop = false;
                 break;
+
+            case "scramble": // For when to scramble cube.. Uncertain how to have user specify number of random moves
+                // default is 5..
+                System.out.println("Moves to Solve Cube: " + (scrambleCube(userCube, 5) + "\n"));
+                break;
         }
 
-        showCubeAll(userCube);
     }
 
 
@@ -325,7 +322,7 @@ public class Cube {
 
 
     /**
-     * 
+     * Rotates the focal face CW once each time it's called
      * @param referenceCube is the Rubik's Cube that is being referenced for change
      * @param updateCube is the Rubik's Cube user wishes to change.
      * @param face is the face that is being rotated CLOCKWISE, changes focus! This will
@@ -349,7 +346,7 @@ public class Cube {
 
 
     /**
-     * 
+     * Rotates the focal face CCW once each time it's called
      * @param referenceCube is the Rubik's Cube that is being referenced for change
      * @param updateCube is the Rubik's Cube user wishes to change.
      * @param face is the face that is being rotated CLOCKWISE, changes focus! This will
@@ -616,74 +613,75 @@ public class Cube {
 
                 case 1: // u, Yellow (4)
                     moveCubeFace(userCube, "u");
-                    solveCubeSequence += "u'";
+                    solveCubeSequence = "u'" + solveCubeSequence;
                     break;
 
                 case 2: // u', Yellow (4)
                     moveCubeFace(userCube, "u'");
-                    solveCubeSequence += "u";
+                    solveCubeSequence = "u" + solveCubeSequence;
                     break;
 
                 case 3: // d, White (5)
                     moveCubeFace(userCube, "d");
-                    solveCubeSequence += "d'";
+                    solveCubeSequence = "d'" + solveCubeSequence;
                     break;
 
                 case 4: // d', White (5)
                     moveCubeFace(userCube, "d'");
-                    solveCubeSequence += "d";
+                    solveCubeSequence = "d" + solveCubeSequence;
                     break;
 
                 case 5: // r, Red (0)
                     moveCubeFace(userCube, "r");
-                    solveCubeSequence += "r'";
+                    solveCubeSequence = "r'" + solveCubeSequence;
                     break;
 
                 case 6: // r', Red (0)
                     moveCubeFace(userCube, "r'");
-                    solveCubeSequence += "r";
+                    solveCubeSequence = "r" + solveCubeSequence;
                     break;
 
                 case 7: // l, Orange (2)
                     moveCubeFace(userCube, "l");
-                    solveCubeSequence += "l'";
+                    solveCubeSequence = "l'" + solveCubeSequence;
                     break;
 
                 case 8: // l', Orange (2)
                     moveCubeFace(userCube, "l'");
-                    solveCubeSequence += "l";
+                    solveCubeSequence = "l" + solveCubeSequence;
                     break;
 
                 case 9: // f, Blue (1)
                     moveCubeFace(userCube, "f");
-                    solveCubeSequence += "f'";
+                    solveCubeSequence = "f'" + solveCubeSequence;
                     break;
 
                 case 10: // f', Blue (1)
                     moveCubeFace(userCube, "f'");
-                    solveCubeSequence += "f";
+                    solveCubeSequence = "f" + solveCubeSequence;
                     break;
 
                 case 11: // b, Green (3)
                     moveCubeFace(userCube, "b");
-                    solveCubeSequence += "b'";
+                    solveCubeSequence = "b'" + solveCubeSequence;
                     break;
 
                 case 12: // b', Green (3)
                     moveCubeFace(userCube, "b'");
-                    solveCubeSequence += "b";
+                    solveCubeSequence = "b" + solveCubeSequence;
                     break;
 
             }
 
             if ((scrambleCounter + 1) != numMoves) {
-                solveCubeSequence += ", ";
+                solveCubeSequence = ", " + solveCubeSequence;
             }
         }
 
+        // this reverses the order so that it displays the sequence correctly
+    
+
         return solveCubeSequence;
-
     }
-
 
 }
