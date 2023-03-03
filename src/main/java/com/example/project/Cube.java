@@ -1,84 +1,63 @@
 package com.example.project;
 
-public class Cube {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
+public class Cube {
     static String[][][] cubeSolved = {
         {
             {"R0", "R1", "R2"},
-
             {"R3", "R4", "R5"},
-
             {"R6", "R7", "R8"}
 
             //{"r", "r", "r"},
-
             //{"r", "r", "r"},
-
             //{"r", "r", "r"}
         },
         {
             {"B0", "B1", "B2"},
-
             {"B3", "B4", "B5"},
-
             {"B6", "B7", "B8"}
 
             //{"b", "b", "b"},
-
             //{"b", "b", "b"},
-
             //{"b", "b", "b"}
         },
         {
             {"O0", "O1", "O2"},
-
             {"O3", "O4", "O5"},
-
             {"O6", "O7", "O8"}
 
             //{"o", "o", "o"},
-
             //{"o", "o", "o"},
-
             //{"o", "o", "o"}
         },
         {
             {"G0", "G1", "G2"},
-
             {"G3", "G4", "G5"},
-
             {"G6", "G7", "G8"}
 
             //{"g", "g", "g"},
-
             //{"g", "g", "g"},
-
             //{"g", "g", "g"}
         },
         {
             {"Y0", "Y1", "Y2"},
-
             {"Y3", "Y4", "Y5"},
-
             {"Y6", "Y7", "Y8"}
 
             //{"y", "y", "y"},
-
             //{"y", "y", "y"},
-
             //{"y", "y", "y"}
         },
         {
             {"W0", "W1", "W2"},
-
             {"W3", "W4", "W5"},
-
             {"W6", "W7", "W8"}
 
             //{"w", "w", "w"},
-
             //{"w", "w", "w"},
-
             //{"w", "w", "w"}
         },
     };
@@ -88,6 +67,8 @@ public class Cube {
     static String[][][] cubeTemp = new String [6][3][3];
 
     static boolean argsCheck = false;
+
+    static boolean proceedLoop = true;
 
 
     /**
@@ -125,44 +106,50 @@ public class Cube {
 
     
     // Main method here!
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        String userInput;
+
+        // from 2D game..
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
         // copies solved cube to another cube array for user to change
         passCubeByValue(cubeSolved, cube);
 
+        //System.out.println("Move Sequence to Solve: " + (scrambleCube(cube, 8) + "\n\n"));
 
-        // in case there's args and wanna reference in other methods
+        showCubeAll(cube);
+
+
         if (args.length > 0) {
             argsCheck = true;
-
-            // in case there's args
-            for (int index = 0; index < args.length; index++){
-                moveCubeFace(cube, args[index]);
-            }
         }
 
-        showCubeAll(cube);
+        // game loop
+        do {
+            if (!argsCheck) {
+                userInput = reader.readLine();
+                System.out.println("\n"); // adds extra lines, looks nice..
 
-        System.out.println("Cube should be reset!");
+                moveCubeFace(cube, userInput);
 
-        moveCubeFace(cube, "r");
-        moveCubeFace(cube, "r'");
+            } else {
+                // in case there's args
+                for (int index = 0; index < args.length; index++){
+                    moveCubeFace(cube, args[index]);
+                    System.out.println("---------------------------------\n");
+                }
 
-        moveCubeFace(cube, "f");
-        moveCubeFace(cube, "f'");
+                moveCubeFace(cube, "quit");
 
-        moveCubeFace(cube, "l");
-        moveCubeFace(cube, "l'");
+            }
 
-        moveCubeFace(cube, "b");
-        moveCubeFace(cube, "b'");
+        } while (proceedLoop);
 
-        moveCubeFace(cube, "u");
-        moveCubeFace(cube, "u'");
+        reader.close();
 
-        moveCubeFace(cube, "d");
-        moveCubeFace(cube, "d'");
 
-        showCubeAll(cube);
+        // scramble
+        //System.out.println(scrambleCube(cube, 3));
 
     }
 
@@ -182,7 +169,6 @@ public class Cube {
      *      passCubeByValue(cubeSolved, cube);
      * 
      *          Used in beginning to copy the solved state of the Rubik's cube into another array for user to change.
-     * 
      * 
      * 
      *      passCubeByValue(cube, cubeTemp);
@@ -324,9 +310,14 @@ public class Cube {
                 rotateFaceCounterClockwise(cubeTemp, userCube, 3);
                 rotateEdgesCounterClockwise(userCube, 3);
                 break;
+
+
+            case "quit": // For when game quit
+                proceedLoop = false;
+                break;
         }
 
-        //showCubeAll(userCube);
+        showCubeAll(userCube);
     }
 
 
@@ -597,6 +588,101 @@ public class Cube {
             // outside switch, inside for loop
             secondIndex++;
         }
+    }
+
+
+
+    /**
+     * Scrambles the cube using a pseudo-random generator with a range from 1 to
+     * 12. This is the amount of possible moves one can make)
+     * @param userCube is the Rubik's Cube user wishes to change.
+     * @param numMoves is how many moves the cube is to be scrambled
+     * @return The sequence of moves needed to solve the cube after it's scrambled. May
+     *         not be the shortest amount of moves.
+     */
+    static String scrambleCube(String[][][] userCube, int numMoves) {
+        int max = 12;
+        int min = 1;
+        int randomMove = 0;
+
+        String solveCubeSequence = "";
+
+
+        for (int scrambleCounter = 0; scrambleCounter < numMoves; scrambleCounter++) {
+
+            randomMove = (int)(Math.random() * (max - min + 1) + min);
+
+            switch (randomMove) {
+
+                case 1: // u, Yellow (4)
+                    moveCubeFace(userCube, "u");
+                    solveCubeSequence += "u'";
+                    break;
+
+                case 2: // u', Yellow (4)
+                    moveCubeFace(userCube, "u'");
+                    solveCubeSequence += "u";
+                    break;
+
+                case 3: // d, White (5)
+                    moveCubeFace(userCube, "d");
+                    solveCubeSequence += "d'";
+                    break;
+
+                case 4: // d', White (5)
+                    moveCubeFace(userCube, "d'");
+                    solveCubeSequence += "d";
+                    break;
+
+                case 5: // r, Red (0)
+                    moveCubeFace(userCube, "r");
+                    solveCubeSequence += "r'";
+                    break;
+
+                case 6: // r', Red (0)
+                    moveCubeFace(userCube, "r'");
+                    solveCubeSequence += "r";
+                    break;
+
+                case 7: // l, Orange (2)
+                    moveCubeFace(userCube, "l");
+                    solveCubeSequence += "l'";
+                    break;
+
+                case 8: // l', Orange (2)
+                    moveCubeFace(userCube, "l'");
+                    solveCubeSequence += "l";
+                    break;
+
+                case 9: // f, Blue (1)
+                    moveCubeFace(userCube, "f");
+                    solveCubeSequence += "f'";
+                    break;
+
+                case 10: // f', Blue (1)
+                    moveCubeFace(userCube, "f'");
+                    solveCubeSequence += "f";
+                    break;
+
+                case 11: // b, Green (3)
+                    moveCubeFace(userCube, "b");
+                    solveCubeSequence += "b'";
+                    break;
+
+                case 12: // b', Green (3)
+                    moveCubeFace(userCube, "b'");
+                    solveCubeSequence += "b";
+                    break;
+
+            }
+
+            if ((scrambleCounter + 1) != numMoves) {
+                solveCubeSequence += ", ";
+            }
+        }
+
+        return solveCubeSequence;
+
     }
 
 
