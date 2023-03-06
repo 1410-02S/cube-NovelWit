@@ -129,6 +129,7 @@ public class Cube {
         do {
             if (!argsCheck) {
                 userInput = reader.readLine();
+                userInput = userInput.toLowerCase();
                 System.out.println(); // adds extra lines, looks nice..
 
                 moveCubeFace(cube, userInput);
@@ -596,7 +597,7 @@ public class Cube {
 
 
     /**
-     * Scrambles the cube using a pseudo-random generator with a range from 1 to
+     * Scrambles the cube using a pseudo-random number generator with a range from 1 to
      * 12. This is the amount of possible moves one can make)
      * @param userCube is the Rubik's Cube user wishes to change.
      * @param numMoves is how many moves the cube is to be scrambled
@@ -683,8 +684,6 @@ public class Cube {
                 solveCubeSequence = ", " + solveCubeSequence;
             }
         }
-
-        // this reverses the order so that it displays the sequence correctly
     
 
         return solveCubeSequence;
