@@ -62,13 +62,23 @@ public class Cube {
         },
     };
 
+    // Used for the user primarily to change up and mess around with
     static String[][][] cube = new String[6][3][3];
 
+    // Used for reference when changing cube values
     static String[][][] cubeTemp = new String [6][3][3];
 
+    // Used to determine if there's command line args or not, changes the mode
     static boolean argsCheck = false;
 
+    // Used to determine whether the cube is being scrambled or not
+    static boolean isScarmbled = false;
+
+    // Used for loop when not in args mode for user to mess around til they wish to stop
     static boolean proceedLoop = true;
+
+    // Used to log moves to solve cube. This will be assuming that 'cube' is the primary one
+    static String moveSolveSequence = "";
 
 
     /**
@@ -122,7 +132,7 @@ public class Cube {
             // shows the initial cube state when not in args mode
             System.out.println("Beginning Cube State:");
             showCubeAll(cube);
-            
+
         }
 
         // 'game' loop
@@ -189,6 +199,31 @@ public class Cube {
     }
 
 
+    /**
+     * Compares two 3D Rubik's Cube arrays to determine whether their states are the same
+     * @param cube1 is a 3D cube array to be compared, order doesn't matter
+     * @param cube2 is a 3D cube array to be compared to the first, order doesn't matter
+     * @return True if all values of both cubes are the same, false if they're not.
+     */
+    static boolean compareCubes(String[][][] cube1, String[][][] cube2) {
+        for (int outerIndex = 0; outerIndex < 6; outerIndex++) {
+            for (int midIndex = 0; midIndex < 3; midIndex++) {
+                for (int innerIndex = 0; innerIndex < 3; innerIndex++) {
+
+                    // if the values are not equal
+                    if (!(cube1[outerIndex][midIndex][innerIndex].equals(cube2[outerIndex][midIndex][innerIndex]))) {
+                        return false;
+
+                    }
+                }
+            }
+        }
+
+        // all comparisons have passed
+        return true;
+    }
+
+
 
     /**
      * Prints out the user's 'cube' array of the specified face.
@@ -234,6 +269,10 @@ public class Cube {
      * @param moveInput is what move the user wishes the Rubik's Cube to do
      */
     static void moveCubeFace(String[][][] userCube, String moveInput) {
+        // Goes from 1 to 12, 0 being yellow cw, 1 being yellow ccw, etc. going down the switch cases
+        boolean beenScrambled = false;
+
+        int faceMove = 0;
 
         passCubeByValue(userCube, cubeTemp);
 
@@ -243,72 +282,84 @@ public class Cube {
             case "u": // YELLOW (4)
                 rotateFaceClockwise(cubeTemp, userCube, 4);
                 rotateEdgesClockwise(userCube, 4);
+                faceMove = 1; // yellow cw
                 break;
 
             // up, counterclockwise
             case "u'": // YELLOW (4)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 4);
                 rotateEdgesCounterClockwise(userCube, 4);
+                faceMove = 2; // yellow ccw
                 break;
 
             // down, clockwise
             case "d": // WHITE (5)
                 rotateFaceClockwise(cubeTemp, userCube, 5);
                 rotateEdgesClockwise(userCube, 5);
+                faceMove = 3; // white cw
                 break;
 
             // down, counterclockwise
             case "d'": // WHITE (5)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 5);
                 rotateEdgesCounterClockwise(userCube, 5);
+                faceMove = 4; // white ccw
                 break;
 
             // right, clockwise
             case "r": // RED (0)
                 rotateFaceClockwise(cubeTemp, userCube, 0);
                 rotateEdgesClockwise(userCube, 0);
+                faceMove = 5; // red cw
                 break;
 
             // right, counterclockwise
             case "r'": // RED (0)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 0);
                 rotateEdgesCounterClockwise(userCube, 0);
+                faceMove = 6; // red ccw
                 break;
 
             // left, clockwise
             case "l": // ORANGE (2)
                 rotateFaceClockwise(cubeTemp, userCube, 2);
                 rotateEdgesClockwise(userCube, 2);
+                faceMove = 7; // orange cw
                 break;
 
             // left, counterclockwise
             case "l'": // ORANGE (2)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 2);
                 rotateEdgesCounterClockwise(userCube, 2);
+                faceMove = 8; // orange ccw
                 break;
 
             // front, clockwise
             case "f": // BLUE (1)
                 rotateFaceClockwise(cubeTemp, userCube, 1);
                 rotateEdgesClockwise(userCube, 1);
+                faceMove = 9; // blue cw
                 break;
 
             // front, counterclockwise
             case "f'": // BLUE (1)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 1);
                 rotateEdgesCounterClockwise(userCube, 1);
+                faceMove = 10; // blue ccw
                 break;
 
             // back, clockwise
             case "b": // GREEN (3)
                 rotateFaceClockwise(cubeTemp, userCube, 3);
                 rotateEdgesClockwise(userCube, 3);
+                faceMove = 11; // green cw
                 break;
 
             // back, counterclockwise
             case "b'": // GREEN (3)
                 rotateFaceCounterClockwise(cubeTemp, userCube, 3);
                 rotateEdgesCounterClockwise(userCube, 3);
+                faceMove = 12; // green cw
                 break;
 
 
@@ -317,11 +368,73 @@ public class Cube {
                 break;
 
             case "scramble": // For when to scramble cube.. Uncertain how to have user specify number of random moves
+                isScarmbled = true;
                 // default is 5..
-                System.out.println("Moves to Solve Cube: " + (scrambleCube(userCube, 5) + "\n"));
+                moveSolveSequence = (scrambleCube(userCube, 5)) + moveSolveSequence;
+                isScarmbled = false;
+                beenScrambled = true;
                 break;
         }
 
+        // For checking the move sequence to solve
+        if (!isScarmbled && !argsCheck) {
+
+            // for when scramble is complete
+            if (beenScrambled) {
+                System.out.println("Sequence of Moves to Solve the Cube: " + moveSolveSequence);
+                return; //escapes method
+            }
+
+            // user solved cube, sequence cleared
+            if (compareCubes(userCube, cubeSolved)) {
+                moveSolveSequence = "";
+
+            } else {
+
+                // if the current move is not equal to the first-most move that is logged, then log inverse of the move
+                // as it is technically a step away from the cube
+                if (!(checkForMoveSequence(moveInput))) {
+                    moveSolveSequence = logMoveSequence(faceMove) + ", " + moveSolveSequence;
+
+                // current move is equal to the front-most move that is logged, therefore user is a step closer to solved cube
+                } else {
+
+                    StringBuilder tempStrBuild = new StringBuilder(moveSolveSequence);
+                    // needs to remove the front-most move in sequence
+                    tempStrBuild.deleteCharAt(0);
+
+                    boolean logLoopTemp;
+
+                    if (tempStrBuild.charAt(0) == '\'' || tempStrBuild.charAt(0) == ',' || tempStrBuild.charAt(0) == ' ') {
+                        logLoopTemp = true;
+
+                    } else {
+                        logLoopTemp = false;
+                    }
+
+                    while (logLoopTemp) {
+
+                        if (tempStrBuild.charAt(0) == '\'') {
+                            tempStrBuild.deleteCharAt(0);
+
+                        } else if (tempStrBuild.charAt(0) == ' ') {
+                            tempStrBuild.deleteCharAt(0);
+
+                        } else if (tempStrBuild.charAt(0) == ',') {
+                            tempStrBuild.deleteCharAt(0);
+
+                        } else {
+                            logLoopTemp = false;
+                        }
+
+                    }
+
+                    moveSolveSequence = tempStrBuild.toString();
+                }
+            }
+
+            System.out.println("Sequence of Moves to Solve the Cube: " + moveSolveSequence);
+        }
     }
 
 
@@ -597,7 +710,7 @@ public class Cube {
 
 
     /**
-     * Scrambles the cube using a pseudo-random number generator with a range from 1 to
+     * Scrambles the cube using a pseudo-random generator with a range from 1 to
      * 12. This is the amount of possible moves one can make)
      * @param userCube is the Rubik's Cube user wishes to change.
      * @param numMoves is how many moves the cube is to be scrambled
@@ -609,7 +722,7 @@ public class Cube {
         int min = 1;
         int randomMove = 0;
 
-        String solveCubeSequence = "";
+        String sequence = "";
 
 
         for (int scrambleCounter = 0; scrambleCounter < numMoves; scrambleCounter++) {
@@ -620,73 +733,183 @@ public class Cube {
 
                 case 1: // u, Yellow (4)
                     moveCubeFace(userCube, "u");
-                    solveCubeSequence = "u'" + solveCubeSequence;
                     break;
 
                 case 2: // u', Yellow (4)
                     moveCubeFace(userCube, "u'");
-                    solveCubeSequence = "u" + solveCubeSequence;
                     break;
 
                 case 3: // d, White (5)
                     moveCubeFace(userCube, "d");
-                    solveCubeSequence = "d'" + solveCubeSequence;
                     break;
 
                 case 4: // d', White (5)
                     moveCubeFace(userCube, "d'");
-                    solveCubeSequence = "d" + solveCubeSequence;
                     break;
 
                 case 5: // r, Red (0)
                     moveCubeFace(userCube, "r");
-                    solveCubeSequence = "r'" + solveCubeSequence;
                     break;
 
                 case 6: // r', Red (0)
                     moveCubeFace(userCube, "r'");
-                    solveCubeSequence = "r" + solveCubeSequence;
                     break;
 
                 case 7: // l, Orange (2)
                     moveCubeFace(userCube, "l");
-                    solveCubeSequence = "l'" + solveCubeSequence;
                     break;
 
                 case 8: // l', Orange (2)
                     moveCubeFace(userCube, "l'");
-                    solveCubeSequence = "l" + solveCubeSequence;
                     break;
 
                 case 9: // f, Blue (1)
                     moveCubeFace(userCube, "f");
-                    solveCubeSequence = "f'" + solveCubeSequence;
                     break;
 
                 case 10: // f', Blue (1)
                     moveCubeFace(userCube, "f'");
-                    solveCubeSequence = "f" + solveCubeSequence;
                     break;
 
                 case 11: // b, Green (3)
                     moveCubeFace(userCube, "b");
-                    solveCubeSequence = "b'" + solveCubeSequence;
                     break;
 
                 case 12: // b', Green (3)
                     moveCubeFace(userCube, "b'");
-                    solveCubeSequence = "b" + solveCubeSequence;
                     break;
 
             }
 
-            if ((scrambleCounter + 1) != numMoves) {
-                solveCubeSequence = ", " + solveCubeSequence;
-            }
+            sequence = logMoveSequence(randomMove) + ", " + sequence;
         }
-    
 
-        return solveCubeSequence;
+        return sequence;
     }
 
+
+    /**
+     * Takes the move done on cube and adds the opposite to the move log so cube can be solved.
+     * @param move the move in int with 1 being yellow cw, and 2 being yellow ccw (etc.)
+     * @return sequence needed to solve cube after move
+     */
+    static String logMoveSequence(int move) {
+        
+        String cubeSolveSequence = "";
+
+        switch (move) {
+
+            case 1: // u, Yellow (4)
+                cubeSolveSequence = "u'" + cubeSolveSequence;
+                break;
+
+            case 2: // u', Yellow (4)
+                cubeSolveSequence = "u" + cubeSolveSequence;
+                break;
+
+            case 3: // d, White (5)
+                cubeSolveSequence = "d'" + cubeSolveSequence;
+                break;
+
+            case 4: // d', White (5)
+                cubeSolveSequence = "d" + cubeSolveSequence;
+                break;
+
+            case 5: // r, Red (0)
+                cubeSolveSequence = "r'" + cubeSolveSequence;
+                break;
+
+            case 6: // r', Red (0)
+                cubeSolveSequence = "r" + cubeSolveSequence;
+                break;
+
+            case 7: // l, Orange (2)
+                cubeSolveSequence = "l'" + cubeSolveSequence;
+                break;
+
+            case 8: // l', Orange (2)
+                cubeSolveSequence = "l" + cubeSolveSequence;
+                break;
+
+            case 9: // f, Blue (1)
+                cubeSolveSequence = "f'" + cubeSolveSequence;
+                break;
+
+            case 10: // f', Blue (1)
+                cubeSolveSequence = "f" + cubeSolveSequence;
+                break;
+
+            case 11: // b, Green (3)
+                cubeSolveSequence = "b'" + cubeSolveSequence;
+                break;
+
+            case 12: // b', Green (3)
+                cubeSolveSequence = "b" + cubeSolveSequence;
+                break;
+
+        }
+        return cubeSolveSequence;
+
+    }
+
+
+    /**
+     * Determines whether the user is getting closer to solved cube according to current logged move sequence
+     * @param move is the move that is being done on the cube
+     * @return True if the move done is the same was the front-most move logged, false if not.
+     */
+    static boolean checkForMoveSequence(String move) {
+
+        move = move + " ";
+
+        char[] sequenceChrArray = moveSolveSequence.toCharArray();
+        String condensedSolveSequence = "";
+
+        // quick escape
+        if (sequenceChrArray.length < 1) {
+            return false;            
+        }
+
+        // iterates over the array removing commas and spaces
+        for (int index = 0; index < sequenceChrArray.length; index++) {
+            
+            if (sequenceChrArray[index] == '\'') {
+                condensedSolveSequence += sequenceChrArray[index];
+
+            }
+
+            if (sequenceChrArray[index] != ',') {
+                if (sequenceChrArray[index] != ' ') {
+                    condensedSolveSequence += sequenceChrArray[index];
+                }
+
+            } else { 
+                condensedSolveSequence += " ";
+            }
+
+        }
+        condensedSolveSequence += " ";
+
+
+        // grabs the first move, sorta making the whole iterating over the entirety of the
+        // current move sequence somewhat pointless
+        if (condensedSolveSequence.charAt(1) == '\'') {
+            condensedSolveSequence = "" + condensedSolveSequence.charAt(0);
+            condensedSolveSequence += "'";
+
+        }
+
+        // If user move is equal to logged move, then returns true
+        if (!(move.charAt(0) == condensedSolveSequence.charAt(0))) {
+            return false;
+
+        }
+
+        if (!(move.charAt(1) == condensedSolveSequence.charAt(1))) {
+            return false;
+
+        }
+
+        return true;
+    }
 }
