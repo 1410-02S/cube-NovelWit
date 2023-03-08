@@ -148,8 +148,9 @@ public class Cube {
             } else {
                 // in case there's args
                 for (int index = 0; index < args.length; index++){
+                    args[index] = (args[index]).toLowerCase();
                     moveCubeFace(cube, args[index]);
-                    //System.out.println("---------------------------------\n");
+
                 }
 
                 // shows only the final state of the cube for args mode (I'm uncertain if it needs to show all states)
